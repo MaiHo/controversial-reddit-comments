@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 import json
 
-COMMENTS_FILENAME = "data/data_538238"
+COMMENTS_FILENAME = "data/data_20_comments"
 FEATURES = set(["body", "downs", "ups", "score", "controversiality", "gilded", "edited", "subreddit"])
 
 def read_comments():
@@ -12,21 +12,24 @@ def read_comments():
 			comment = json.loads(line)
 			yield {feature: comment[feature] for feature in FEATURES}
 
-def find_percentage_controverisial_comments():
+def find_percentage_controverisial_comments(output_filename):
 	num_controversial = 0
 	total = 0
 	comments = read_comments()
-	for comment in comments:
-		total += 1
 
-		if comment["controversiality"] == 1:
-			num_controversial += 1
+	with open(output_filename, 'wr') as f:
+		for comment in comments:
+			total += 1
 
-	print num_controversial
-	print total
-	pct = 100.0 * num_controversial / total
-	print "% of controversial comments", pct
-	return pct
+			if comment["controversiality"] == 1:
+				num_controversial += 1
+				f.write(json.dumps(comment) + "\n")
+
+		print num_controversial
+		print total
+		pct = 100.0 * num_controversial / total
+		print "% of controversial comments", pct
+		return pct
 
 def preprocess():
 	comments = read_comments()
@@ -35,5 +38,5 @@ def preprocess():
 
 
 if __name__ == "__main__":
-	find_percentage_controverisial_comments()
-	preprocess()
+	find_percentage_controverisial_comments("data_20_output")
+	# preprocess()
