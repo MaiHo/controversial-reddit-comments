@@ -12,8 +12,12 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 FEATURES = ["body", "score", "controversiality", "gilded", "edited", "subreddit"]
 
-def read_comments():
-    sql_conn = sqlite3.connect('data/sample.sqlite')
+def read_comments(controversial_only=False):
+    if controversial_only:
+        sql_conn = sqlite3.connect('data/sample_controversial.sqlite')
+    else:
+        sql_conn = sqlite3.connect('data/sample.sqlite')
+
     dataframe = pd.read_sql('SELECT * FROM May2015', sql_conn)
     
     # Extract the relevant features and turn them into the format we want.
@@ -22,10 +26,15 @@ def read_comments():
 
     return relevant_dataframe
 
+
 def preprocess():
-    comments_dataframe = read_comments()
+    controversial_df = read_comments(controversial_only=True)
     vectorizer = CountVectorizer(binary=True, stop_words="english", max_features=20)
-    X = vectorizer.fit_transform(comments_dataframe["body"])
+    vectorizer.fit(controversial_df["body"])
+
+    # Now get bag of words vector for each comment
+    comments_dataframe = read_comments()
+    X = vectorizer.transform(comments_dataframe["body"])
     y = comments_dataframe["controversiality"]
     
     numerical_features = ["score", "gilded", "edited"]
