@@ -7,7 +7,7 @@ import json
 import numpy as np
 
 COMMENTS_FILENAME = "data/data_20_comments"
-FEATURES = set(["body", "downs", "ups", "score", "controversiality", "gilded", "edited", "subreddit"])
+FEATURES = set(["body", "score", "controversiality", "gilded", "edited", "subreddit"])
 
 def read_comments():
 	with open(COMMENTS_FILENAME) as f:
@@ -54,7 +54,7 @@ def preprocess():
 	comments = read_comments()
 	y = np.array([[comment["controversiality"]] for comment in comments])
 	
-	numerical_features = ["downs", "ups", "score", "gilded"]
+	numerical_features = ["score", "gilded"]
 	for feature in numerical_features:
 		comments = read_comments()
 		X_2 = csr_matrix([[comment[feature]] for comment in comments])

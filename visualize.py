@@ -1,24 +1,55 @@
 import json
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import sqlite3
 
-def plot_ups_and_downs():
-	# Grab controversial comments
-	sql_conn = sqlite3.connect('../input/database.sqlite')
-	dataframe = pd.read_sql('SELECT ups, downs FROM May2015 WHERE CONTROVERSIAL=1 ORDER BY Random() LIMIT 5000000', sql_conn)
+DATASET_SIZE = 100000
 
-	plt.figure()
-	plt.title("Upvotes vs Downvotes of Controversial Comments")
-    plt.xlabel("Number of upvotes")
-    plt.ylabel("Number of downvotes")
+def percentage_edited():
+    sql_conn = sqlite3.connect('data/sample_controversial.sqlite')
+    dataframe = pd.read_sql('SELECT * FROM May2015 WHERE edited=1', sql_conn)
+
+    print "Number of edited controversial comments: ", len(dataframe.index)
+    print "Percentage: ", 1.0 * len(dataframe.index) / DATASET_SIZE
+
+def percentage_gilded():
+    sql_conn = sqlite3.connect('data/sample_controversial.sqlite')
+    dataframe = pd.read_sql('SELECT * FROM May2015 WHERE gilded=1', sql_conn)
+
+    print "Number of gilded controversial comments: ",len(dataframe.index)
+    print "Percentage: ", 1.0 * len(dataframe.index) / DATASET_SIZE
+
+def plot_scores(controversial=True):
+    # Grab comments
+    if controversial:
+        db = 'data/sample_controversial.sqlite'
+    else:
+        db = 'data/sample_uncontroversial.sqlite'
+    sql_conn = sqlite3.connect(db)
+    dataframe = pd.read_sql('SELECT score FROM May2015', sql_conn)
+
+    plt.figure()
+    
+    if controversial:
+        plt.title("Scores of Controversial Comments")
+    else:
+        plt.title("Scores of Uncontroversial Comments")
+
+    plt.ylabel("Score (net upvotes)")
 
     # Plot data
-    plt.plot(dataframe.ups.values, dataframe.downs.values)
+    plt.boxplot(dataframe.score.values)
+    plt.ylim(-100, 200)
+    plt.show()
 
-    # Plot y=x line
-    plt.plot(plt.get_xlim(), plt.get_ylim(), ls="--", c=".3")
-	plt.show()
+    # Print mean, median, mode, 25th and 75th percentiles
+    print "Average score: ", np.mean(dataframe.score.values)
+    print "Median: ", np.median(dataframe.score.values)
+    print "25th Percentile: ", np.percentile(dataframe.score.values, 25)
+    print "75th Percentile: ", np.percentile(dataframe.score.values, 75)
+    print "Minimum score: ", min(dataframe.score.values)
+    print "Maximum score: ", max(dataframe.score.values)
 
 if __name__ == "__main__":
-	plot_ups_and_downs()
+    plot_scores(controversial=False)
