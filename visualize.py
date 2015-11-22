@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+import itertools
 import json
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,7 +43,9 @@ def plot_scores(controversial=True):
 
     # Plot data
     plt.boxplot(dataframe.score.values)
-    plt.ylim(-100, 200)
+
+    if not controversial:
+        plt.ylim(-100, 200)
     plt.show()
 
     # Print mean, median, mode, 25th and 75th percentiles
@@ -51,5 +56,27 @@ def plot_scores(controversial=True):
     print "Minimum score: ", min(dataframe.score.values)
     print "Maximum score: ", max(dataframe.score.values)
 
+
+def plot_most_controversial_subreddits():
+    sql_conn = sqlite3.connect('data/sample_controversial.sqlite')
+    dataframe = pd.read_sql('SELECT subreddit FROM May2015', sql_conn)
+
+    counts = pd.DataFrame({'count' : dataframe.groupby("subreddit").size()}).reset_index().values
+    
+    # [::-1] reverses the list.
+    sorted_counts = counts[:, 1].argsort(axis=False)[::-1]
+    sorted_counts = sorted_counts[:20]
+
+    plt.figure()
+    plt.style.use('ggplot')
+    plt.title("Subreddits With Most Controversial Comments")
+    plt.xlabel("Subreddit")
+    plt.ylabel("Number of Controversial Comments")
+    plt.yticks(range(20), counts[sorted_counts, 0])
+    plt.barh(range(20), counts[sorted_counts, 1], align="center")
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
-    plot_scores(controversial=False)
+    plot_most_controversial_subreddits()
