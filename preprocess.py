@@ -29,7 +29,7 @@ def read_comments(controversial_only=False):
 
 def preprocess():
     controversial_df = read_comments(controversial_only=True)
-    vectorizer = CountVectorizer(binary=True, stop_words="english", max_features=30)
+    vectorizer = CountVectorizer(binary=True, stop_words="english", max_features=5)
     vectorizer.fit(controversial_df["body"])
 
     # Now get bag of words vector for each comment

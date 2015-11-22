@@ -80,34 +80,12 @@ def plot_most_controversial_subreddits():
 def plot_alt_most_controversial_subreddits():
     sql_conn = sqlite3.connect('data/sample.sqlite')
     df = pd.read_sql('SELECT subreddit, controversiality FROM May2015 WHERE subreddit in (SELECT subreddit FROM May2015 GROUP BY subreddit HAVING COUNT(*) > 400)', sql_conn)
-    print df
-    # df = pd.read_sql('SELECT subreddit, controversiality FROM May2015', sql_conn)
 
     counts = df.groupby(['subreddit', 'controversiality'])['subreddit'].count().unstack('controversiality').fillna(0)
-    # print counts
-
-
-    # counts = pd.DataFrame({'count' : dataframe.groupby("subreddit").size()})
-    plt.figure()
     plt.style.use('ggplot')
     counts.plot(kind='barh', stacked=True)
     plt.tight_layout()
     plt.show()
-
-    # # [::-1] reverses the list.
-    # sorted_counts = counts[:, 1].argsort(axis=False)[::-1]
-    # sorted_counts = sorted_counts[:20]
-
-    # plt.figure()
-    # plt.style.use('ggplot')
-    # plt.title("Subreddits With Most Controversial Comments")
-    # plt.xlabel("Subreddit")
-    # plt.ylabel("Number of Controversial Comments")
-    # plt.yticks(range(20), counts[sorted_counts, 0])
-    # plt.barh(range(20), counts[sorted_counts, 1], align="center")
-    # plt.tight_layout()
-    # plt.show()
-
 
 if __name__ == "__main__":
     plot_alt_most_controversial_subreddits()
