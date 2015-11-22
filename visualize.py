@@ -33,6 +33,7 @@ def plot_scores(controversial=True):
     dataframe = pd.read_sql('SELECT score FROM May2015', sql_conn)
 
     plt.figure()
+    plt.style.use('ggplot')
     
     if controversial:
         plt.title("Scores of Controversial Comments")
@@ -70,8 +71,8 @@ def plot_most_controversial_subreddits():
     plt.figure()
     plt.style.use('ggplot')
     plt.title("Subreddits With Most Controversial Comments")
-    plt.xlabel("Subreddit")
-    plt.ylabel("Number of Controversial Comments")
+    plt.ylabel("Subreddit")
+    plt.xlabel("Number of Controversial Comments")
     plt.yticks(range(20), counts[sorted_counts, 0])
     plt.barh(range(20), counts[sorted_counts, 1], align="center")
     plt.tight_layout()
@@ -84,8 +85,10 @@ def plot_alt_most_controversial_subreddits():
     counts = df.groupby(['subreddit', 'controversiality'])['subreddit'].count().unstack('controversiality').fillna(0)
     plt.style.use('ggplot')
     counts.plot(kind='barh', stacked=True)
+    plt.title("Subreddits with Most Controversial Comments")
     plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
-    plot_alt_most_controversial_subreddits()
+    plot_most_controversial_subreddits()
+    # plot_alt_most_controversial_subreddits()
