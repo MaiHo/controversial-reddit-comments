@@ -8,6 +8,7 @@ import preprocess as pp
 
 from sklearn import metrics
 from sklearn.cross_validation import StratifiedKFold
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
@@ -39,7 +40,7 @@ def run_models():
     test_logistic_regression_classifier(train_test_sets)
 
     print "Support Vector Machine Classifier..."
-    test_svm(train_test_sets)
+    test_svm_classifier(train_test_sets)
 
 
 def performance(y_true, y_pred, metric="accuracy"):
@@ -199,7 +200,7 @@ def test_logistic_regression_classifier(train_test_sets):
     print_metrics(y_test, y_pred)
 
 
-def test_svm(train_test_sets):
+def test_svm_classifier(train_test_sets):
     """ Support Vector Machine Classifier.
     """
     X_train, X_test, y_train, y_test = train_test_sets
@@ -209,6 +210,20 @@ def test_svm(train_test_sets):
     clf = SVC(C=best_C)
 
     clf.fit(X_train, y_train)
+    y_pred = clf.predict(X_train)
+    print "LOGISTIC REGRESSION CLASSIFIER RESULTS"
+    print "\tTraining accuracy is ", metrics.accuracy_score(y_train, y_pred, normalize=True)
+
+    y_pred = clf.predict(X_test)
+    print_metrics(y_test, y_pred)
+
+
+def test_adaboost_classifier(train_test_sets):
+    """ Adaboost Classifier with Decision Tree Stumps. """
+    X_train, X_test, y_train, y_test = train_test_sets
+    clf = AdaBoostClassifier(n_estimators=20)
+    clf.fit(X_train, y_train)
+
     y_pred = clf.predict(X_train)
     print "LOGISTIC REGRESSION CLASSIFIER RESULTS"
     print "\tTraining accuracy is ", metrics.accuracy_score(y_train, y_pred, normalize=True)
