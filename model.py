@@ -27,7 +27,7 @@ def run_models():
 	# test_decision_tree_classifier(train_test_sets)
 
 	print "Depth-limited Decision Tree Classifier..."
-	test_depth_limited_dt_classifier(train_test_sets, depth_limited=True)
+	test_decision_tree_classifier(train_test_sets, depth_limited=True)
 
 
 def performance(y_true, y_pred, metric="accuracy"):
@@ -76,7 +76,7 @@ def cv_performance(clf, X, y, kf, metric="accuracy"):
 
     i = 0
     for train_index, test_index in kf:
-        X_train, y_test = X[train_index], y[train_index]
+        X_train, y_train = X[train_index], y[train_index]
         X_test, y_test = X[test_index], y[test_index]
 
         clf.fit(X_train, y_train)
@@ -162,8 +162,16 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
 def test_logistic_regression_classifier(train_test_sets):
 	X_train, X_test, y_train, y_test = train_test_sets
 	kf = StratifiedKFold(y_train, n_folds=5, shuffle=True)
-	C = select_regularization(X_train, y_train, kf, metric="f1_score")
-	# clf = LogisticRegression()
+	best_C = select_regularization(X_train, y_train, kf, metric="f1_score")
+	clf = LogisticRegression(C=best_C)
+
+	clf.fit(X_train, y_train)
+	y_pred = clf.predict(X_train)
+	print "LOGISTIC REGRESSION CLASSIFIER RESULTS"
+	print "\tTraining accuracy is ", metrics.accuracy_score(y_train, y_pred, normalize=True)
+
+	y_pred = clf.predict(X_test)
+	print_metrics(y_test, y_pred)
 
 
 def test_subreddit_baseline_classifier():
