@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import json
 import numpy as np
 import pandas as pd
+import pickle
 import sqlite3
 
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -32,6 +33,41 @@ def read_comments(controversial_only=False):
     return relevant_dataframe
 
 def preprocess_subreddit_baseline():
+	filenames = ["X_train_baseline",
+		"X_test_baseline",
+		"y_train_baseline",
+		"y_test_baseline"]
+
+	return save_or_load_training_testing_sets(filenames,
+		lambda: create_baseline_training_testing_sets()) 
+
+def preprocess(max_features=5):
+	filenames = ["X_train_normal",
+		"X_test_normal",
+		"y_train_normal",
+		"y_test_normal"]
+
+	return save_or_load_training_testing_sets(filenames,
+		lambda: create_training_testing_sets(max_features))
+
+def save_or_load_training_testing_sets(filenames, create_fcn):
+	files = [(filename, read_pickle(filename)) for filename in filenames]
+	if any([matrix is None for _, matrix in files]):
+		print "Preprocessed files not found, preprocessing from scratch..."
+		training_testing_sets = create_fcn()
+
+		files = zip(filenames, list(training_testing_sets))
+		for filename, matrix in files:
+			save_pickle(filename, matrix)
+
+		return training_testing_sets
+
+	else:
+		print "Preprocessed files found, no further preprocessing necessary..."
+		return tuple([x for _, x in files])
+
+
+def create_baseline_training_testing_sets():
     # Subreddit baseline model is a decision tree that only considers a subreddit
     # Therefore, subreddit is the only feature.
     comments_dataframe = read_comments()
@@ -43,7 +79,8 @@ def preprocess_subreddit_baseline():
 
     return X_train, X_test, y_train, y_test
 
-def preprocess(max_features=5):
+
+def create_training_testing_sets(max_features):
     controversial_df = read_comments(controversial_only=True)
     vectorizer = CountVectorizer(binary=True, stop_words="english", max_features=max_features)
     vectorizer.fit(controversial_df["body"])
@@ -63,6 +100,19 @@ def preprocess(max_features=5):
 
     return X_train, X_test, y_train, y_test
 
+def read_pickle(prefix):
+    try:
+        with open(get_pickle_filename(prefix), "rb") as f:
+            var = pickle.load(f)
+            return var
+    except StandardError:
+        return None
 
-if __name__ == "__main__":
-    preprocess_subreddit_baseline()
+def save_pickle(prefix, var):
+	with open(get_pickle_filename(prefix), "wb") as f:
+		pickle.dump(var, f)
+		return var
+
+def get_pickle_filename(prefix):
+	return prefix + ".pickle"
+
