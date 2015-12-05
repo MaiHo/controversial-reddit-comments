@@ -21,13 +21,13 @@ def run_models():
 	print "Beginning training..."
 
 	print "Baseline Classifier..."
-	# test_subreddit_baseline_classifier()
+	test_subreddit_baseline_classifier()
 
 	print "Decision Tree Classifier..."
-	# test_decision_tree_classifier(train_test_sets)
+	test_decision_tree_classifier(train_test_sets)
 
 	print "Depth-limited Decision Tree Classifier..."
-	# test_decision_tree_classifier(train_test_sets, depth_limited=True)
+	test_decision_tree_classifier(train_test_sets, depth_limited=True)
 
 	print "Logistic Regression Classifier..."
 	test_logistic_regression_classifier(train_test_sets)
@@ -126,7 +126,7 @@ def select_regularization(X, y, kf, metric="accuracy"):
     Returns:
     	Depth that maximizes performance on k-fold cross validation.
     """
-    C = range(1, 30)
+    C = 10.0 ** np.arange(-3, 3)
     C_scores = {}
     for c in C:
         score = cv_performance(LogisticRegression(C=c), X, y, kf, metric=metric)
@@ -163,6 +163,10 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
 
 
 def test_logistic_regression_classifier(train_test_sets):
+	""" Logistic Regression Classifier.
+
+	Does k-fold cross validation to determine the regularization term.
+	"""
 	X_train, X_test, y_train, y_test = train_test_sets
 	kf = StratifiedKFold(y_train, n_folds=5, shuffle=True)
 	best_C = select_regularization(X_train, y_train, kf, metric="f1_score")
