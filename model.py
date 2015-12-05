@@ -34,13 +34,16 @@ def run_models():
     # test_decision_tree_classifier(train_test_sets)
 
     print "Depth-limited Decision Tree Classifier..."
-    # test_decision_tree_classifier(train_test_sets, depth_limited=True)
+    test_decision_tree_classifier(train_test_sets, depth_limited=True)
 
     print "Logistic Regression Classifier..."
-    test_logistic_regression_classifier(train_test_sets)
+    # test_logistic_regression_classifier(train_test_sets)
 
     print "Support Vector Machine Classifier..."
-    test_svm_classifier(train_test_sets)
+    # test_svm_classifier(train_test_sets)
+
+    print "Adaboosting with Decision Tree Stumps..."
+    test_adaboost_classifier(train_test_sets)
 
 
 def performance(y_true, y_pred, metric="accuracy"):
@@ -211,7 +214,7 @@ def test_svm_classifier(train_test_sets):
 
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_train)
-    print "LOGISTIC REGRESSION CLASSIFIER RESULTS"
+    print "SVM CLASSIFIER RESULTS"
     print "\tTraining accuracy is ", metrics.accuracy_score(y_train, y_pred, normalize=True)
 
     y_pred = clf.predict(X_test)
@@ -221,11 +224,11 @@ def test_svm_classifier(train_test_sets):
 def test_adaboost_classifier(train_test_sets):
     """ Adaboost Classifier with Decision Tree Stumps. """
     X_train, X_test, y_train, y_test = train_test_sets
-    clf = AdaBoostClassifier(n_estimators=20)
+    clf = AdaBoostClassifier()
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_train)
-    print "LOGISTIC REGRESSION CLASSIFIER RESULTS"
+    print "ADABOOST CLASSIFIER RESULTS"
     print "\tTraining accuracy is ", metrics.accuracy_score(y_train, y_pred, normalize=True)
 
     y_pred = clf.predict(X_test)
