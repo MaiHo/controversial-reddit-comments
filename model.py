@@ -8,6 +8,7 @@ import preprocess as pp
 
 from sklearn import metrics
 from sklearn.cross_validation import StratifiedKFold
+from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 
 
@@ -20,13 +21,13 @@ def run_models():
 	print "Beginning training..."
 
 	print "Baseline Classifier..."
-	test_subreddit_baseline_classifier()
+	# test_subreddit_baseline_classifier()
 
 	print "Decision Tree Classifier..."
-	test_decision_tree_classifier(train_test_sets)
+	# test_decision_tree_classifier(train_test_sets)
 
 	print "Depth-limited Decision Tree Classifier..."
-	test_depth_limited_dt_classifier(train_test_sets)
+	test_depth_limited_dt_classifier(train_test_sets, depth_limited=True)
 
 
 def performance(y_true, y_pred, metric="accuracy"):
@@ -108,6 +109,29 @@ def select_dt_depth(X, y, kf, metric="accuracy"):
 
     return max(depth_scores, key=lambda d: depth_scores[d])
 
+
+def select_regularization(X, y, kf, metric="accuracy"):
+    """
+    Finds the best regularization constant for LogisticRegression.
+
+    Args:
+    	X: feature vectors
+    	y: labels
+    	kf: cross_validation.StratifiedKFold
+    	metric: performance measure
+
+    Returns:
+    	Depth that maximizes performance on k-fold cross validation.
+    """
+    C = range(1, 30)
+    C_scores = {}
+    for c in C:
+        score = cv_performance(LogisticRegression(C=c), X, y, kf, metric=metric)
+        C_scores[c] = score
+
+    return max(C_scores, key=lambda c: C_scores[c])
+
+
 def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_limited=False):
 	""" Decision Tree Classifier with optional depth-limit.
 
@@ -120,7 +144,7 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
 
 	if depth_limited:
 		kf = StratifiedKFold(y_train, n_folds=5, shuffle=True)
-		depth = select_dt_depth(X_train, y_train, kf, metric="f1_score")
+		depth = select_dt_depth(X_train, y_train, kf, metric="accuracy")
 		clf = DecisionTreeClassifier(criterion="entropy", max_depth=depth)
 	else:
 		clf = DecisionTreeClassifier(criterion="entropy")
@@ -133,6 +157,13 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
 
 	y_pred = clf.predict(X_test)
 	print_metrics(y_test, y_pred)
+
+
+def test_logistic_regression_classifier(train_test_sets):
+	X_train, X_test, y_train, y_test = train_test_sets
+	kf = StratifiedKFold(y_train, n_folds=5, shuffle=True)
+	C = select_regularization(X_train, y_train, kf, metric="f1_score")
+	# clf = LogisticRegression()
 
 
 def test_subreddit_baseline_classifier():
