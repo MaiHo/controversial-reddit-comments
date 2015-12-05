@@ -51,7 +51,7 @@ def preprocess(max_features=5):
     # Now get bag of words vector for each comment
     comments_dataframe = read_comments()
     X = vectorizer.transform(comments_dataframe["body"])
-    y = comments_dataframe["controversiality"]
+    y = comments_dataframe["controversiality"].as_matrix()
     
     numerical_features = ["score", "gilded", "edited", "subreddit"]
     for feature in numerical_features:
