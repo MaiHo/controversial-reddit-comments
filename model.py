@@ -48,7 +48,7 @@ def run_models():
     # test_decision_tree_classifier(train_test_sets, depth_limited=True)
 
     # print "Logistic Regression Classifier..."
-    # # test_logistic_regression_classifier(train_test_sets)
+    test_logistic_regression_classifier(train_test_sets)
 
     # print "Adaboosting with Decision Tree Stumps..."
     # test_adaboost_classifier(train_test_sets)
