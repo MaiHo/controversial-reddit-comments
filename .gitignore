@@ -1,4 +1,6 @@
-## Core latex/pdflatex auxiliary files:
+*.pickle
+
+# Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
 *.log

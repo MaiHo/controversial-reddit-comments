@@ -18,7 +18,7 @@ def read_comments():
     sql_conn = sqlite3.connect('data/sample_1mil.sqlite')
 
     dataframe = pd.read_sql('SELECT * FROM May2015', sql_conn)
-    
+
     # Extract the relevant features and turn them into the format we want.
     relevant_dataframe = dataframe[FEATURES]
     relevant_dataframe["edited"] = relevant_dataframe["edited"].apply(lambda x: int(x > 0))
@@ -36,7 +36,25 @@ def preprocess_subreddit_baseline():
         "y_test_baseline"]
 
     return save_or_load_training_testing_sets(filenames,
-        lambda: create_baseline_training_testing_sets()) 
+        lambda: create_baseline_training_testing_sets())
+
+def preprocess(max_features=5, force_load=False):
+    filenames = ["X_train_normal",
+        "X_test_normal",
+        "y_train_normal",
+        "y_test_normal"]
+
+    return save_or_load_training_testing_sets(filenames,
+        lambda: create_training_testing_sets(max_features), force_load)
+
+def save_or_load_training_testing_sets(filenames, create_fcn, force_load):
+    files = [(filename, read_pickle(filename)) for filename in filenames]
+    if any([matrix is None for _, matrix in files]) or force_load:
+        print "Preprocessed files not found, preprocessing from scratch..."
+        training_testing_sets = create_fcn()
+
+    return save_or_load_training_testing_sets(filenames,
+        lambda: create_baseline_training_testing_sets())
 
 def preprocess(max_features=5):
     filenames = ["X_train_normal",
