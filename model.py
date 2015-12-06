@@ -16,34 +16,42 @@ from sklearn.tree import DecisionTreeClassifier
 
 def run_models():
     """ Run all classification models. """
-    print "Beginning preprocessing..."
-
     # TODO: Vary max_features.
-    train_test_sets = pp.preprocess(max_features=10)
-    print "...finished preprocessing"
+    # feature_range = range(1, 31)
+    # scores = {}
+    # for i in feature_range:
+    #     print "Beginning preprocessing..."
+    #     train_test_sets = pp.preprocess(max_features=i, force_load=True)
+    #     print "...finished preprocessing"
 
-    print "Beginning training..."
+    #     print "Depth-limited Decision Tree Classifier..."
+    #     scores[i] = test_decision_tree_classifier(
+    #         train_test_sets, depth_limited=True)
+
+    # max_features = max(feature_range, key=lambda x: scores[x])
+    # print "Best max_features: ", max_features
+
+    train_test_sets = pp.preprocess(max_features=max_features, force_load=True)
+
+    # print "Beginning training..."
 
     # TODO: Change all metrics to F1-score once we have imbalanced data set.
     # Also change number of folds if necessary.
 
-    print "Baseline Classifier..."
-    # test_subreddit_baseline_classifier()
+    # print "Baseline Classifier..."
+    # # test_subreddit_baseline_classifier()
 
-    print "Decision Tree Classifier..."
-    # test_decision_tree_classifier(train_test_sets)
+    # print "Decision Tree Classifier..."
+    # # test_decision_tree_classifier(train_test_sets)
 
-    print "Depth-limited Decision Tree Classifier..."
-    test_decision_tree_classifier(train_test_sets, depth_limited=True)
+    # print "Depth-limited Decision Tree Classifier..."
+    # test_decision_tree_classifier(train_test_sets, depth_limited=True)
 
-    print "Logistic Regression Classifier..."
-    # test_logistic_regression_classifier(train_test_sets)
+    # print "Logistic Regression Classifier..."
+    # # test_logistic_regression_classifier(train_test_sets)
 
-    print "Support Vector Machine Classifier..."
-    # test_svm_classifier(train_test_sets)
-
-    print "Adaboosting with Decision Tree Stumps..."
-    test_adaboost_classifier(train_test_sets)
+    # print "Adaboosting with Decision Tree Stumps..."
+    # test_adaboost_classifier(train_test_sets)
 
 
 def performance(y_true, y_pred, metric="accuracy"):
@@ -180,6 +188,8 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
     y_pred = clf.predict(X_test)
     print_metrics(y_test, y_pred)
 
+    return metrics.f1_score(y_test, y_pred)
+
 
 def test_logistic_regression_classifier(train_test_sets):
     """ Logistic Regression Classifier.
@@ -224,7 +234,7 @@ def test_svm_classifier(train_test_sets):
 def test_adaboost_classifier(train_test_sets):
     """ Adaboost Classifier with Decision Tree Stumps. """
     X_train, X_test, y_train, y_test = train_test_sets
-    clf = AdaBoostClassifier()
+    clf = AdaBoostClassifier(n_estimators=100)
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_train)
