@@ -124,7 +124,7 @@ def select_dt_depth(X, y, kf, metric="accuracy"):
     Returns:
         Depth that maximizes performance on k-fold cross validation.
     """
-    depths = range(5, 25)
+    depths = range(5, 25, 5)
     depth_scores = {}
     for d in depths:
         score = cv_performance(DecisionTreeClassifier(
@@ -173,7 +173,7 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
 
     if depth_limited:
         # TODO: Change number of folds?
-        kf = StratifiedKFold(y_train, n_folds=5, shuffle=True, random_state=42)
+        kf = StratifiedKFold(y_train, n_folds=2, shuffle=True, random_state=42)
         depth = select_dt_depth(X_train, y_train, kf, metric="accuracy")
         clf = DecisionTreeClassifier(criterion="entropy", max_depth=depth)
     else:
