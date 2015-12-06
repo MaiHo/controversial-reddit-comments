@@ -67,19 +67,12 @@ def save_or_load_training_testing_sets(filenames, create_fcn, force_load):
 
 
 def create_baseline_training_testing_sets():
-    # Subreddit baseline model is a decision tree that only considers a subreddit
-    # Therefore, subreddit is the only feature.
-    comments_dataframe = read_comments()
-    X = comments_dataframe[["subreddit"]]
-    y = comments_dataframe["controversiality"]
+    return create_training_testing_sets(is_baseline=True)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-        test_size=PERCENTAGE_OF_TEST_SET, random_state=42)
+def create_training_testing_sets(max_features=0, is_baseline=False):
+    # Ensure determinism.
+    np.random.seed(42)
 
-    return X_train, X_test, y_train, y_test
-
-
-def create_training_testing_sets(max_features):
     comments_dataframe = read_comments()
     num_comments, _ = comments_dataframe.shape
 
@@ -97,21 +90,25 @@ def create_training_testing_sets(max_features):
 
     test_indices = np.append(test_set_uncontroversial, test_set_controversial)
 
-    controversial_df = comments_dataframe.iloc[train_indices][comments_dataframe["controversiality"] == 1]
-    vectorizer = CountVectorizer(binary=True, stop_words="english", max_features=max_features)
-    vectorizer.fit(controversial_df["body"])
+    if is_baseline:
+        X = comments_dataframe[["subreddit"]].as_matrix()
+    else:
+        controversial_df = comments_dataframe.iloc[train_indices][comments_dataframe["controversiality"] == 1]
+        vectorizer = CountVectorizer(binary=True, stop_words="english", max_features=max_features)
+        vectorizer.fit(controversial_df["body"])
 
-    # Now get bag of words vector for each comment
-    X = vectorizer.transform(comments_dataframe["body"])
+        # Now get bag of words vector for each comment
+        X = vectorizer.transform(comments_dataframe["body"])
+
+        numerical_features = ["score", "gilded", "edited", "subreddit"]
+        for feature in numerical_features:
+            X_2 = csr_matrix(comments_dataframe[feature].values)
+            X = hstack([X, X_2.transpose()])
+
+        # Convert to another sparse array format that supports advanced indexing.
+        X = X.tocsc()
+
     y = comments_dataframe["controversiality"].as_matrix()
-
-    numerical_features = ["score", "gilded", "edited", "subreddit"]
-    for feature in numerical_features:
-        X_2 = csr_matrix(comments_dataframe[feature].values)
-        X = hstack([X, X_2.transpose()])
-
-    # Convert to another sparse array format that supports advanced indexing.
-    X = X.tocsc()
 
     return X[train_indices], X[test_indices], y[train_indices], y[test_indices]
 
@@ -130,4 +127,3 @@ def save_pickle(prefix, var):
 
 def get_pickle_filename(prefix):
     return prefix + ".pickle"
-
