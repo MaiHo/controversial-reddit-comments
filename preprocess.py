@@ -53,34 +53,17 @@ def save_or_load_training_testing_sets(filenames, create_fcn, force_load):
         print "Preprocessed files not found, preprocessing from scratch..."
         training_testing_sets = create_fcn()
 
-    return save_or_load_training_testing_sets(filenames,
-        lambda: create_baseline_training_testing_sets())
-
-def preprocess(max_features=5):
-    filenames = ["X_train_normal",
-        "X_test_normal",
-        "y_train_normal",
-        "y_test_normal"]
-
-    return save_or_load_training_testing_sets(filenames,
-        lambda: create_training_testing_sets(max_features))
-
-def save_or_load_training_testing_sets(filenames, create_fcn):
-    files = [(filename, read_pickle(filename)) for filename in filenames]
-    if any([matrix is None for _, matrix in files]):
-        print "Preprocessed files not found, preprocessing from scratch..."
-        training_testing_sets = create_fcn()
->>>>>>> 436d228d0b11310c428083fef19ff7f475a203b0
-
         files = zip(filenames, list(training_testing_sets))
         for filename, matrix in files:
             save_pickle(filename, matrix)
 
         return training_testing_sets
-
     else:
         print "Preprocessed files found, no further preprocessing necessary..."
         return tuple([x for _, x in files])
+
+    return save_or_load_training_testing_sets(filenames,
+        lambda: create_baseline_training_testing_sets())
 
 
 def create_baseline_training_testing_sets():

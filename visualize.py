@@ -34,7 +34,7 @@ def plot_scores(controversial=True):
 
     plt.figure()
     plt.style.use('ggplot')
-    
+
     if controversial:
         plt.title("Scores of Controversial Comments")
     else:
@@ -63,7 +63,7 @@ def plot_most_controversial_subreddits():
     dataframe = pd.read_sql('SELECT subreddit FROM May2015', sql_conn)
 
     counts = pd.DataFrame({'count' : dataframe.groupby("subreddit").size()}).reset_index().values
-    
+
     # [::-1] reverses the list.
     sorted_counts = counts[:, 1].argsort(axis=False)[::-1]
     sorted_counts = sorted_counts[:20]
@@ -79,7 +79,7 @@ def plot_most_controversial_subreddits():
     plt.show()
 
 def plot_alt_most_controversial_subreddits():
-    sql_conn = sqlite3.connect('data/sample.sqlite')
+    sql_conn = sqlite3.connect('../data/sample.sqlite')
     df = pd.read_sql('SELECT subreddit, controversiality FROM May2015 WHERE subreddit in (SELECT subreddit FROM May2015 GROUP BY subreddit HAVING COUNT(*) > 400)', sql_conn)
 
     counts = df.groupby(['subreddit', 'controversiality'])['subreddit'].count().unstack('controversiality').fillna(0)
@@ -90,5 +90,5 @@ def plot_alt_most_controversial_subreddits():
     plt.show()
 
 if __name__ == "__main__":
-    plot_most_controversial_subreddits()
-    # plot_alt_most_controversial_subreddits()
+    # plot_most_controversial_subreddits()
+    plot_alt_most_controversial_subreddits()

@@ -31,7 +31,7 @@ def run_models():
     # max_features = max(feature_range, key=lambda x: scores[x])
     # print "Best max_features: ", max_features
 
-    train_test_sets = pp.preprocess(max_features=max_features, force_load=True)
+    train_test_sets = pp.preprocess(max_features=10, force_load=True)
 
     # print "Beginning training..."
 
@@ -51,7 +51,7 @@ def run_models():
     test_logistic_regression_classifier(train_test_sets)
 
     # print "Adaboosting with Decision Tree Stumps..."
-    # test_adaboost_classifier(train_test_sets)
+    test_adaboost_classifier(train_test_sets)
 
 
 def performance(y_true, y_pred, metric="accuracy"):
@@ -124,7 +124,7 @@ def select_dt_depth(X, y, kf, metric="accuracy"):
     Returns:
         Depth that maximizes performance on k-fold cross validation.
     """
-    depths = range(1, 30)
+    depths = range(5, 25)
     depth_scores = {}
     for d in depths:
         score = cv_performance(DecisionTreeClassifier(
@@ -173,8 +173,8 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
 
     if depth_limited:
         # TODO: Change number of folds?
-        kf = StratifiedKFold(y_train, n_folds=5, shuffle=True)
-        depth = select_dt_depth(X_train, y_train, kf, metric="accuracy")
+        kf = StratifiedKFold(y_train, n_folds=5, shuffle=True, random_state=42)
+        depth = select_dt_depth(X_train, y_train, kf, metric="f1_score")
         clf = DecisionTreeClassifier(criterion="entropy", max_depth=depth)
     else:
         clf = DecisionTreeClassifier(criterion="entropy")
@@ -199,7 +199,7 @@ def test_logistic_regression_classifier(train_test_sets):
     X_train, X_test, y_train, y_test = train_test_sets
 
     # TODO: Change number of folds?
-    kf = StratifiedKFold(y_train, n_folds=5, shuffle=True)
+    kf = StratifiedKFold(y_train, n_folds=5, shuffle=True, random_state=42)
     best_C = select_regularization(
         X_train, y_train, kf, classifier="logreg", metric="accuracy")
     clf = LogisticRegression(C=best_C)
@@ -217,7 +217,7 @@ def test_svm_classifier(train_test_sets):
     """ Support Vector Machine Classifier.
     """
     X_train, X_test, y_train, y_test = train_test_sets
-    kf = StratifiedKFold(y_train, n_folds=5, shuffle=True)
+    kf = StratifiedKFold(y_train, n_folds=5, shuffle=True, random_state=42)
     best_C = select_regularization(
         X_train, y_train, kf, classifier="svm", metric="accuracy")
     clf = SVC(C=best_C)
@@ -234,7 +234,7 @@ def test_svm_classifier(train_test_sets):
 def test_adaboost_classifier(train_test_sets):
     """ Adaboost Classifier with Decision Tree Stumps. """
     X_train, X_test, y_train, y_test = train_test_sets
-    clf = AdaBoostClassifier(n_estimators=100)
+    clf = AdaBoostClassifier(n_estimators=100, random_state=42)
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_train)
