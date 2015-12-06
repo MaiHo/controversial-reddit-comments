@@ -79,7 +79,7 @@ def plot_most_controversial_subreddits():
     plt.show()
 
 def plot_alt_most_controversial_subreddits():
-    sql_conn = sqlite3.connect('../data/sample.sqlite')
+    sql_conn = sqlite3.connect('../data/sample_2.sqlite')
     df = pd.read_sql('SELECT subreddit, controversiality FROM May2015 WHERE subreddit in (SELECT subreddit FROM May2015 GROUP BY subreddit HAVING COUNT(*) > 400)', sql_conn)
 
     counts = df.groupby(['subreddit', 'controversiality'])['subreddit'].count().unstack('controversiality').fillna(0)

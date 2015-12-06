@@ -31,7 +31,7 @@ def run_models():
     # max_features = max(feature_range, key=lambda x: scores[x])
     # print "Best max_features: ", max_features
 
-    train_test_sets = pp.preprocess(max_features=10, force_load=True)
+    train_test_sets = pp.preprocess(max_features=10)
 
     # print "Beginning training..."
 
@@ -51,7 +51,7 @@ def run_models():
     test_logistic_regression_classifier(train_test_sets)
 
     # print "Adaboosting with Decision Tree Stumps..."
-    test_adaboost_classifier(train_test_sets)
+    # test_adaboost_classifier(train_test_sets)
 
 
 def performance(y_true, y_pred, metric="accuracy"):
@@ -174,7 +174,7 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
     if depth_limited:
         # TODO: Change number of folds?
         kf = StratifiedKFold(y_train, n_folds=5, shuffle=True, random_state=42)
-        depth = select_dt_depth(X_train, y_train, kf, metric="f1_score")
+        depth = select_dt_depth(X_train, y_train, kf, metric="accuracy")
         clf = DecisionTreeClassifier(criterion="entropy", max_depth=depth)
     else:
         clf = DecisionTreeClassifier(criterion="entropy")
