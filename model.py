@@ -44,11 +44,11 @@ def run_models():
     # print "Decision Tree Classifier..."
     # # test_decision_tree_classifier(train_test_sets)
 
-    # print "Depth-limited Decision Tree Classifier..."
-    # test_decision_tree_classifier(train_test_sets, depth_limited=True)
+    print "Depth-limited Decision Tree Classifier..."
+    test_decision_tree_classifier(train_test_sets, depth_limited=True)
 
     # print "Logistic Regression Classifier..."
-    test_logistic_regression_classifier(train_test_sets)
+    # test_logistic_regression_classifier(train_test_sets)
 
     # print "Adaboosting with Decision Tree Stumps..."
     # test_adaboost_classifier(train_test_sets)
@@ -124,7 +124,7 @@ def select_dt_depth(X, y, kf, metric="accuracy"):
     Returns:
         Depth that maximizes performance on k-fold cross validation.
     """
-    depths = range(5, 25, 5)
+    depths = range(5, 25, 3)
     depth_scores = {}
     for d in depths:
         score = cv_performance(DecisionTreeClassifier(
@@ -173,8 +173,10 @@ def test_decision_tree_classifier(train_test_sets, criterion="entropy", depth_li
 
     if depth_limited:
         # TODO: Change number of folds?
-        kf = StratifiedKFold(y_train, n_folds=2, shuffle=True, random_state=42)
-        depth = select_dt_depth(X_train, y_train, kf, metric="accuracy")
+        kf = StratifiedKFold(y_train, n_folds=5, shuffle=True, random_state=42)
+        # depth = select_dt_depth(X_train, y_train, kf, metric="accuracy")
+        depth = 23
+        # print "Best depth...", depth
         clf = DecisionTreeClassifier(criterion="entropy", max_depth=depth)
     else:
         clf = DecisionTreeClassifier(criterion="entropy")
